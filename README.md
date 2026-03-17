@@ -1,31 +1,60 @@
-# 🎓 University Assistant Chatbot
+# 🏎️ Formula 1 Chatbot (FastF1)
 
 ## 📌 Sobre o Projeto
 
-O **University Assistant Chatbot** é um assistente virtual desenvolvido para ajudar estudantes universitários a organizarem melhor sua rotina acadêmica. O chatbot funciona como um ponto central de suporte para informações importantes relacionadas à vida universitária.
+O **Formula 1 Chatbot** é um assistente virtual desenvolvido para fornecer informações detalhadas sobre o mundo da Fórmula 1. Utilizando a biblioteca **FastF1**, o chatbot é capaz de acessar e processar dados oficiais das corridas para responder perguntas em tempo real ou históricas.
 
-A proposta do projeto é oferecer uma forma simples e rápida para que alunos possam consultar horários de aula, acompanhar prazos de trabalhos e provas, localizar salas e prédios dentro do campus e receber sugestões de estudo.
+O projeto tem como foco oferecer uma experiência interativa para fãs da Fórmula 1, permitindo consultar estatísticas, resultados e informações sobre pilotos, equipes e corridas de forma rápida e intuitiva.
 
 ## 🎯 Objetivo
 
-O objetivo principal do chatbot é **facilitar o acesso às informações acadêmicas e melhorar a organização dos estudantes**, reduzindo esquecimentos de prazos, dificuldades em encontrar salas ou dúvidas comuns sobre atividades da faculdade.
+O objetivo do chatbot é **facilitar o acesso a dados da Fórmula 1**, transformando informações técnicas e complexas em respostas simples e acessíveis através de uma interface conversacional.
 
 ## 💡 Conceito
 
-O chatbot atua como um **assistente acadêmico digital**, capaz de responder perguntas e fornecer informações úteis para o dia a dia universitário, como:
+O chatbot atua como um **assistente inteligente para fãs de Fórmula 1**, sendo capaz de interpretar perguntas e retornar dados relevantes com base nas informações obtidas via FastF1.
 
-- Consulta de **horários de aula**
-- Informações sobre **locais e salas das disciplinas**
-- **Lembretes de prazos** de trabalhos, provas e atividades
-- **Dicas de estudo e organização**
-- Respostas para **dúvidas frequentes dos alunos**
+Entre as principais interações esperadas, estão:
 
-A ideia é que o assistente esteja disponível em plataformas digitais, permitindo que os alunos tenham acesso rápido às informações acadêmicas sempre que precisarem.
+- Consulta de **resultados de corridas**
+- Informações sobre **classificações (qualifying)**
+- Dados de **pilotos e equipes**
+- Comparação de desempenho entre pilotos
+- Informações sobre **voltas rápidas e telemetria**
+- Estatísticas de temporadas e corridas específicas
 
-## 👨‍🎓 Público-Alvo
+## ⚙️ Tecnologia Base
 
-Este projeto é voltado principalmente para:
+O projeto utiliza a biblioteca **FastF1**, que fornece acesso a dados detalhados da Fórmula 1, incluindo:
 
-- Estudantes universitários
-- Novos alunos que ainda estão se adaptando à rotina acadêmica
-- Alunos que desejam melhorar sua organização e produtividade nos estudos
+- Tempos de volta
+- Telemetria
+- Dados de sessões (treinos, classificação e corrida)
+- Informações de clima e pista
+
+Esses dados são processados pelo chatbot para gerar respostas dinâmicas e informativas.
+
+## 🧠 Funcionamento
+
+O fluxo básico do chatbot segue os seguintes passos:
+
+1. O usuário faz uma pergunta (ex: “Quem venceu o GP de Mônaco de 2023?”)
+2. O chatbot interpreta a intenção da pergunta
+3. O sistema consulta os dados através do FastF1
+4. A resposta é processada e retornada ao usuário de forma clara
+
+## 👥 Público-Alvo
+
+Este projeto é voltado para:
+
+- Fãs de Fórmula 1
+- Entusiastas de análise de dados esportivos
+- Desenvolvedores interessados em aplicações com dados esportivos
+
+## 🚀 Possibilidades Futuras
+
+- Integração com APIs de linguagem natural
+- Dashboard com visualização de dados (gráficos de telemetria)
+- Comparações avançadas entre pilotos
+- Integração com plataformas como Discord ou Telegram
+- Atualizações em tempo real durante corridas
