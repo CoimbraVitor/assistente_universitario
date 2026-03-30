@@ -49,10 +49,15 @@ function setLoading(state) {
 function sendMessage(textParam = null) {
   if (isLoading) return;
 
-  const text = textParam || input.value;
+  const text = textParam !== null ? textParam : input.value;
+
   if (!text) return;
 
   addMessage(text, "user");
+
+  // 🔥 LIMPA SEMPRE
+  input.value = "";
+
   setLoading(true);
   showTyping();
 
@@ -63,8 +68,7 @@ function sendMessage(textParam = null) {
   })
     .then((res) => res.json())
     .then((data) => {
-      // ⏳ delay artificial (1s a 2.5s)
-      const delay = Math.floor(Math.random() * 1500) + 1000;
+      const delay = Math.min(3000, 800 + data.response.length * 20);
 
       setTimeout(() => {
         removeTyping();
@@ -73,7 +77,6 @@ function sendMessage(textParam = null) {
       }, delay);
     });
 }
-
 function quick(option) {
   sendMessage(option.toString());
 }
