@@ -12,10 +12,7 @@ class F1Chatbot:
 
     def get_response(self, user_input: str) -> str:
         response = self.chat.respond(user_input.lower())
-        return response if response else self.get_fallback()
-
-    def get_fallback(self):
-        return random.choice([
-            "Não entendi. Escolha uma opção do menu 😊",
-            "Tente digitar um número de 1 a 5!"
+        return response if response else random.choice([
+            "Digite um número de 1 a 5 😊",
+            "Escolha uma opção do menu!"
         ])
