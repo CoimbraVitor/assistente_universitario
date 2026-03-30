@@ -63,12 +63,15 @@ function sendMessage(textParam = null) {
   })
     .then((res) => res.json())
     .then((data) => {
-      removeTyping();
-      addMessage(data.response, "bot");
-      setLoading(false);
-    });
+      // ⏳ delay artificial (1s a 2.5s)
+      const delay = Math.floor(Math.random() * 1500) + 1000;
 
-  input.value = "";
+      setTimeout(() => {
+        removeTyping();
+        addMessage(data.response, "bot");
+        setLoading(false);
+      }, delay);
+    });
 }
 
 function quick(option) {
