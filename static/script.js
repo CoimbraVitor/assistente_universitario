@@ -77,10 +77,6 @@ function sendMessage(textParam = null) {
       }, delay);
     });
 }
-function quick(option) {
-  sendMessage(option.toString());
-}
-
 input.addEventListener("keypress", function (e) {
   if (e.key === "Enter") sendMessage();
 });
@@ -95,15 +91,7 @@ function toggleTheme() {
 
 window.onload = () => {
   addMessage(
-    `Olá! 👋
-
-O que você quer saber?
-
-1 - O que é Fórmula 1?
-2 - O que é DRS?
-3 - O que é Pit Stop?
-4 - Quem é Lewis Hamilton?
-5 - Quem é Max Verstappen?`,
+    "Olá! 👋 Que bom ter você por aqui. Sou seu assistente especializado em Fórmula 1!\n\nPodemos conversar sobre a história da categoria, as tecnologias incríveis como o DRS, as estratégias de pit stop ou sobre os grandes pilotos. Por onde gostaria de começar nosso papo?",
     "bot"
   );
 };
