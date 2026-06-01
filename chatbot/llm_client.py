@@ -1,73 +1,117 @@
 import os
 import time
-
-# Suprimir warnings desnecessários do transformers
+ 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+ 
 import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
-MODEL_ID = "google/flan-t5-small"
-
-# Carrega modelo e tokenizer uma única vez, demora uns 10s, mas as chamadas seguintes ficam instantâneas.
-print(f"[LLM] Carregando {MODEL_ID}... (só na primeira vez)")
+MODEL_ID = "Qwen/Qwen2.5-1.5B-Instruct"
+ 
+_device = "cuda" if torch.cuda.is_available() else "cpu"
+ 
+print(f"[LLM] Dispositivo detectado: {_device.upper()}")
+print(f"[LLM] Carregando {MODEL_ID}...")
+print("[LLM] (primeira execução faz download do modelo — aguarde)")
+ 
 _tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
-_model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_ID)
+ 
+if _device == "cuda":
+    _model = AutoModelForCausalLM.from_pretrained(
+        MODEL_ID,
+        dtype=torch.float16,
+        device_map="auto",
+        low_cpu_mem_usage=True,
+    )
+else:
+    _model = AutoModelForCausalLM.from_pretrained(
+        MODEL_ID,
+        dtype=torch.float32,
+        low_cpu_mem_usage=True,
+    )
+ 
 _model.eval()
 print("[LLM] Modelo pronto!")
-
-
-def _build_prompt(user_message: str) -> str:
-    return f"answer the following question about Formula 1 in Portuguese: {user_message}"
-
-
-def query_llm(user_message: str) -> tuple[str, bool]:
+ 
+_SYSTEM_PROMPT = """\
+Você é o "F1 Bot", um especialista apaixonado em Fórmula 1.
+Responda SEMPRE em português brasileiro, de forma amigável e precisa.
+Seja conciso: no máximo 10 parágrafos por resposta.
+Use os dados históricos abaixo para embasar análises e previsões.
+Nunca invente dados — se não souber, diga claramente.
+ 
+{data_context}"""
+ 
+ 
+def query_llm(
+    user_message: str,
+    data_context: str = "",
+) -> tuple[str, bool]:
     """
-    Gera resposta localmente com flan-t5-small.
-
-    Parâmetros de geração:
-    - max_new_tokens: 200 — suficiente para respostas objetivas
-    - num_beams: 4 — beam search, melhor qualidade que greedy
-    - early_stopping: para quando todos os beams terminam
-    - no_repeat_ngram_size: evita repetição de frases
+    Gera uma resposta local com o modelo CausalLM.
+ 
+    Parâmetros:
+        user_message — pergunta/mensagem atual do usuário.
+        data_context — resumo estatístico dos dados históricos de corridas.
+ 
+    Retorna:
+        (texto_da_resposta, sucesso: bool)
     """
     try:
-        prompt = _build_prompt(user_message)
-
+        system_content = _SYSTEM_PROMPT.format(data_context=data_context)
+ 
+        messages = [
+            {"role": "system", "content": system_content},
+            {"role": "user",   "content": user_message},
+        ]
+ 
+        prompt_text = _tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True,
+        )
+ 
         inputs = _tokenizer(
-            prompt,
+            prompt_text,
             return_tensors="pt",
             truncation=True,
-            max_length=512,
-        )
-
+            max_length=2048,
+        ).to(_device)
+ 
+        prompt_len = inputs["input_ids"].shape[1]
+ 
         start = time.time()
         with torch.no_grad():
             outputs = _model.generate(
                 **inputs,
-                max_new_tokens=200,
-                num_beams=4,
-                early_stopping=True,
-                no_repeat_ngram_size=3,
+                max_new_tokens=300,
+                do_sample=True,
+                temperature=0.7,
+                top_p=0.9,
+                repetition_penalty=1.15,
+                pad_token_id=_tokenizer.eos_token_id,
             )
         elapsed = time.time() - start
-
-        text = _tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
-        print(f"[LLM] flan-t5-small respondeu em {elapsed:.1f}s")
-        return text, True
-
+ 
+        new_tokens = outputs[0][prompt_len:]
+        response = _tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
+ 
+        print(f"[LLM] Respondeu em {elapsed:.1f}s ({len(new_tokens)} tokens)")
+        return response, True
+ 
     except Exception as e:
         print(f"[LLM] Erro na geração: {e}")
         return _fallback_response(), False
-
-
+ 
+ 
 def _fallback_response() -> str:
     return (
         "Não consegui gerar uma resposta agora. "
         "Tente perguntar sobre DRS, pit stop, pilotos ou equipes da F1!"
     )
-
-
+ 
+ 
 def check_connection() -> bool:
-    """Sempre True — modelo local não depende de rede."""
+    """Sempre True — modelo local não depende de rede após o download inicial."""
     return True
+ 

@@ -3,6 +3,7 @@ import re
 from nltk.chat.util import Chat
 
 from chatbot.llm_client import query_llm
+from chatbot.data_loader import build_data_context
 from chatbot.intents import get_f1_intents
 from chatbot.reflections import get_reflections
 from chatbot.hooks import get_f1_hooks
@@ -23,11 +24,19 @@ class F1Chatbot:
         
         # Ordem das fases para guiar a conversa
         self.phases = ["WELCOME", "BASICS", "TECH", "STRATEGY", "DRIVERS", "CLOSING"]
+ 
+        self.known_drivers = [
+            "hamilton", "verstappen", "leclerc", "alonso",
+            "senna", "perez", "russell", "norris", "piastri",
+        ]
+        self.known_topics = [
+            "drs", "pit stop", "f1", "formula 1",
+            "pneus", "aerodinâmica", "safety car",
+        ]
+ 
 
-        # 🔥 entidades conhecidas
-        self.known_drivers = ["hamilton", "verstappen", "leclerc", "alonso", "senna", "perez", "russell"]
-        self.known_topics = ["drs", "pit stop", "f1", "formula 1", "pneus", "aerodinâmica", "safety car"]
-
+        self.data_context = build_data_context()
+ 
     def _get_next_hook(self):
         """Seleciona o próximo gancho de conversa baseado na fase atual."""
         available_hooks = [h for h in self.hooks[self.current_phase] if h not in self.used_hooks]
@@ -122,18 +131,21 @@ class F1Chatbot:
             "f1 é a categoria máxima",
             "categoria máxima do automobilismo",
         ]
-
+ 
         if not response:
             nltk_response = self.chat.respond(user_input)
             is_fallback = not nltk_response or any(
                 p in nltk_response.lower() for p in _NLTK_FALLBACKS
             )
+ 
             if not is_fallback:
                 response = nltk_response
             else:
-                # LLM como fallback final
-                print("[ENGINE] Acionando LLM...")
-                llm_answer, sucesso = query_llm(user_input)
+                print("[ENGINE] Acionando modelo local com dados históricos de F1...")
+                llm_answer, _ = query_llm(          # ← MUDANÇA: passa data_context
+                    user_message=user_input,
+                    data_context=self.data_context,
+                )
                 response = llm_answer
 
         # ---------------- ADIÇÃO DO GANCHO (HOOK) ----------------
@@ -145,9 +157,8 @@ class F1Chatbot:
             " Por sinal, ",
             " Mudando um pouco o rumo da conversa, ",
             " Além disso, ",
-            " Aliás, "
+            " Aliás, ",
         ]
-        
-        full_response = f"{response}{random.choice(connectors)}{next_hook}"
-
-        return full_response
+ 
+        return f"{response}{random.choice(connectors)}{next_hook}"
+ 
